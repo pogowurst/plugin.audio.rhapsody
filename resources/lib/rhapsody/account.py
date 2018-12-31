@@ -12,7 +12,6 @@ class Account(object):
         self.can_stream_on_mobile = data['canStreamOnMobile']
         self.can_play_premium_radio = data['canPlayPremiumRadio']
         self.id = data['id']
-        self.billing_partner_code = data['billingPartnerCode']
         self.product_code = data['productCode']
         self.tier_code = data['tierCode']
         self.cocat = data['cocat']
