@@ -697,7 +697,8 @@ if __name__ == '__main__':
         from rhapsody import exceptions
 
         rhapsody = helpers.get_api()
-        rhapsody.ENABLE_RTMP = plugin.get_setting('api_transport', converter=str) == 'RTMP'
+        # TODO: try to get RTMP working again
+        # rhapsody.ENABLE_RTMP = plugin.get_setting('api_transport', converter=str) == 'RTMP'
         rhapsody.ENABLE_DEBUG = plugin.get_setting('api_debug', converter=bool)
         rhapsody.ENABLE_CACHE = not plugin.get_setting('api_cache_disable', converter=bool)
         if not rhapsody.ENABLE_DEBUG and not rhapsody.ENABLE_CACHE:
