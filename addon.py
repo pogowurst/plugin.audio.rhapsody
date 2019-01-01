@@ -598,21 +598,10 @@ def play(track_id, station_id=None):
     import xbmc
 
     track = rhapsody.tracks.detail(track_id)
+    stream = helpers.get_stream(track_id)
 
-    qualities = {
-        'AAC+ 64kBit/s': 0,
-        'AAC 192kBit/s': 1,
-        'AAC 320kBit/s': 2,
-    }
-    quality = qualities.get(plugin.get_setting('api_quality', converter=str), qualities['AAC 320kBit/s'])
-    while quality > 0:
-        try:
-            stream = rhapsody.streams.detail(track_id, qualtity=rhapsody.streams.QUALITIES[quality]).streams[0]
-            break
-        except IndexError:
-            plugin.log.info('Playback: No stream available for this quality. Retrying with reduced quality...')
-            quality -= 1
-    else:
+    if stream is None:
+        plugin.notify(_(30107).encode('utf-8'))
         return
 
     item = helpers.get_track_item(track)
@@ -675,7 +664,7 @@ def play(track_id, station_id=None):
         if next_track_id is not None:
             plugin.log.info('Preload: Caching next playlist position {0:d} ({1:s})'.format(next_pos, next_track_id))
             rhapsody.tracks.detail(next_track_id)
-            rhapsody.streams.detail(next_track_id)
+            helpers.get_stream(next_track_id)
 
     # wait for the current item to finish before exiting
     while not xbmc.abortRequested and not player.has_stopped:

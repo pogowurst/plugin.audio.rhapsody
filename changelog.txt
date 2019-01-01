@@ -1,3 +1,6 @@
+v2.4.1
+- Fixed quality setting AAC+ 64kBit/s
+
 v2.4.0
 - Added support for API endpoint 2.2 (currently only used for streaming and controlling streaming quality)
 - Added option to select playback quality in plugin configuration

@@ -222,3 +222,20 @@ class Helpers:
         if self._api is None:
             self._api = self._get_api()
         return self._api
+
+    def get_stream(self, track_id):
+        qualities = {
+            'AAC+ 64kBit/s': 0,
+            'AAC 192kBit/s': 1,
+            'AAC 320kBit/s': 2,
+        }
+        quality = qualities.get(self._plugin.get_setting('api_quality', converter=str), qualities['AAC 320kBit/s'])
+        while quality >= 0:
+            try:
+                q = self.get_api().streams.QUALITIES[quality]
+                return self.get_api().streams.detail(track_id, qualtity=q).streams[0]
+            except IndexError:
+                self._plugin.log.info('Playback: No stream available. Retrying with reduced quality...')
+                quality -= 1
+        else:
+            return
