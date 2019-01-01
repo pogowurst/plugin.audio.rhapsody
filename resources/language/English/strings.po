@@ -28,7 +28,7 @@ msgid "Disable cache (not recommended)"
 msgstr ""
 
 msgctxt "#30006"
-msgid "Transport method"
+msgid "Audio quality"
 msgstr ""
 
 msgctxt "#30010"
@@ -71,6 +71,10 @@ msgstr ""
 
 msgctxt "#30106"
 msgid "Your membership does not allow streaming on this device."
+msgstr ""
+
+msgctxt "#30107"
+msgid "No stream available for this track."
 msgstr ""
 
 # Labels

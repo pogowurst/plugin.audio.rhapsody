@@ -14,8 +14,8 @@ class Events(object):
             'playback': {
                 'id': track_id,
                 'started': started.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                'format': stream.format,
-                'bitrate': stream.bitrate
+                'format': stream.format.name,
+                'bitrate': stream.format.bitrate
             }
         }
         self._api.post('events', json.dumps(data), headers={'Content-Type': 'application/json'})
@@ -32,8 +32,8 @@ class Events(object):
             'playback': {
                 'id': track_id,
                 'started': started.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                'format': stream.format,
-                'bitrate': stream.bitrate
+                'format': stream.format.name,
+                'bitrate': stream.format.bitrate
             }
         }
         self._api.post('events', json.dumps(data), headers={'Content-Type': 'application/json'})

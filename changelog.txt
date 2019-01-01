@@ -1,3 +1,12 @@
+v2.4.0
+- Added support for API endpoint 2.2 (currently only used for streaming and controlling streaming quality)
+- Added option to select playback quality in plugin configuration
+- Fixed station playback
+
+v2.3.3
+- Fixed billingPartnerCode KeyError
+- Removed support for streaming via RTMP
+
 v2.3.2
 - Change default protocol to HTTP for Kodi 17 Beta compatibility
 

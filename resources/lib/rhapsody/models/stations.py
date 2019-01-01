@@ -36,8 +36,8 @@ class Stations(MetadataList, MetadataDetail):
     def decade(self):
         return self.list('decade')
 
-    def tracks(self, station_id):
-        return self._api.stations_tracks.detail(station_id)
+    def tracks(self, station_id, offset=0, count=5):
+        return self._api.stations_tracks.detail(station_id, params={'offset': offset, 'count': count})
 
 
 class StationsTracks(MetadataDetail):
@@ -62,5 +62,6 @@ class StationsTracks(MetadataDetail):
     detail_class = StationTrack
     cache_timeout = None
 
-    def detail(self, obj_id, model=None):
-        return super(StationsTracks, self).detail(obj_id + '/tracks')
+    def detail(self, obj_id, model=None, **kwargs):
+        params = kwargs.get('params', dict())
+        return super(StationsTracks, self).detail(obj_id + '/tracks', params=params)

@@ -28,8 +28,8 @@ msgid "Disable cache (not recommended)"
 msgstr "Zwischenspeicher deaktivieren (nicht empfohlen)"
 
 msgctxt "#30006"
-msgid "Transport method"
-msgstr "Übertragungsmethode"
+msgid "Audio quality"
+msgstr "Audio-Qualität"
 
 msgctxt "#30010"
 msgid "Account"
@@ -72,6 +72,10 @@ msgstr "Der Rhapsody Dienst ist nicht verfügbar."
 msgctxt "#30106"
 msgid "Your membership does not allow streaming on this device."
 msgstr "Deine Mitgliedschaft erlaubt das Streamen auf diesem Gerät nicht."
+
+msgctxt "#30107"
+msgid "No stream available for this track."
+msgstr "Für diesen Titel ist kein Stream verfügbar."
 
 # Labels
 

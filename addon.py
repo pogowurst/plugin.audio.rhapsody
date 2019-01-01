@@ -598,18 +598,25 @@ def play(track_id, station_id=None):
     import xbmc
 
     track = rhapsody.tracks.detail(track_id)
-    stream = rhapsody.streams.detail(track_id)
+
+    qualities = {
+        'AAC+ 64kBit/s': 0,
+        'AAC 192kBit/s': 1,
+        'AAC 320kBit/s': 2,
+    }
+    quality = qualities.get(plugin.get_setting('api_quality', converter=str), qualities['AAC 320kBit/s'])
+    while quality > 0:
+        try:
+            stream = rhapsody.streams.detail(track_id, qualtity=rhapsody.streams.QUALITIES[quality]).streams[0]
+            break
+        except IndexError:
+            plugin.log.info('Playback: No stream available for this quality. Retrying with reduced quality...')
+            quality -= 1
+    else:
+        return
 
     item = helpers.get_track_item(track)
-    if stream.url.startswith('rtmp://'):
-        parts = [
-            '/'.join(stream.url.split('/')[:5]),
-            'app=' + '/'.join(stream.url.split('/')[3:5]),
-            'playpath=' + 'mp3:' + '/'.join(stream.url.split('/')[5:])
-        ]
-        item['path'] = ' '.join(parts)
-    else:
-        item['path'] = stream.url
+    item['path'] = stream.url
 
     notify = play.Notify(rhapsody, track, stream)
     player = play.Player(plugin=plugin, notify=notify)
@@ -618,15 +625,15 @@ def play(track_id, station_id=None):
     # add upcoming station tracks to playlist
     if station_id is not None:
         playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
-        current_pos = playlist.getposition()
+        current_pos = playlist.getposition() + 1
         playlist_target_size = current_pos + 5
-        while playlist.size() <= playlist_target_size:
-            next_tracks = rhapsody.stations.tracks(station_id).tracks[:5]
-            if len(next_tracks) == 0:
-                break
+        if playlist.size() < playlist_target_size:
+            next_tracks = rhapsody.stations.tracks(station_id,
+                                                   offset=current_pos,
+                                                   count=playlist_target_size - playlist.size()).tracks
             for next_track in next_tracks:
-                plugin.log.info('Preload: Adding next station track {0:d} of {1:d}'.format(
-                    playlist.size(), current_pos + 5
+                plugin.log.info('Preload: Adding next station track {0:d} of {1:d}: {2:s}'.format(
+                    playlist.size() + 1, playlist_target_size, next_track.id
                 ))
                 next_item = helpers.get_track_item(next_track)
                 next_item['path'] = plugin.url_for(
@@ -697,8 +704,6 @@ if __name__ == '__main__':
         from rhapsody import exceptions
 
         rhapsody = helpers.get_api()
-        # TODO: try to get RTMP working again
-        # rhapsody.ENABLE_RTMP = plugin.get_setting('api_transport', converter=str) == 'RTMP'
         rhapsody.ENABLE_DEBUG = plugin.get_setting('api_debug', converter=bool)
         rhapsody.ENABLE_CACHE = not plugin.get_setting('api_cache_disable', converter=bool)
         if not rhapsody.ENABLE_DEBUG and not rhapsody.ENABLE_CACHE:
@@ -721,6 +726,11 @@ if __name__ == '__main__':
     except exceptions.StreamingRightsError:
         plugin.notify(_(30106).encode('utf-8'))
         plugin.log.error(sys.stdout.getvalue())
+    except IOError as e:
+        plugin.log.error(sys.stdout.getvalue())
+        traceback.print_exc()
+        if e.errno == 2 and e.message.endswith('.tmp'):
+            pass
     except Exception as e:
         plugin.log.error(sys.stdout.getvalue())
         traceback.print_exc()

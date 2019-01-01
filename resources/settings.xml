@@ -5,7 +5,7 @@
         <setting label="30012" type="text" id="password" option="hidden" enable="!eq(-1,)" default=""/>
     </category>
     <category label="30000">
-        <setting label="30006" type="select" id="api_transport" values="HTTP" default="HTTP" />
+        <setting label="30006" type="select" id="api_quality" values="AAC+ 64kBit/s|AAC 192kBit/s|AAC 320kBit/s" default="AAC 320kBit/s" />
         <setting label="30001" type="bool" id="api_prefetch" default="true"/>
         <setting label="30002" type="text" id="api_key" default="22Q1bFiwGxYA2eaG4vVAGsJqi3SQWzmd"/>
         <setting label="30003" type="text" id="api_secret" option="hidden" enable="!eq(-1,)" default="Z1AAYBC1JEtnMJGm"/>

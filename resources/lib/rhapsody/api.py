@@ -28,7 +28,6 @@ class API:
     MAX_RETRIES = 3
     ENABLE_CACHE = True
     ENABLE_DEBUG = False
-    ENABLE_RTMP = False
 
     instance = None
     token = Token
@@ -164,10 +163,11 @@ class API:
                 }
             }
 
-    def get(self, url, params, headers=None, retry=0):
+    def get(self, url, params, headers=None, retry=0, version=None):
         headers = self._get_headers(headers)
+        version = version or self.VERSION
         try:
-            response = requests.get(API.BASE_URL + API.VERSION + '/' + url, params=params, headers=headers)
+            response = requests.get(API.BASE_URL + version + '/' + url, params=params, headers=headers)
             self._log_response(response)
             if response.status_code in [400, 401, 403, 405, 409, 429]:
                 raise exceptions.RequestError(response.status_code)
@@ -182,10 +182,11 @@ class API:
             else:
                 raise exceptions.RequestError
 
-    def post(self, url, data, headers=None, retry=0):
+    def post(self, url, data, headers=None, retry=0, version=None):
         headers = self._get_headers(headers)
+        version = version or self.VERSION
         try:
-            response = requests.post(API.BASE_URL + API.VERSION + '/' + url, data=data, headers=headers)
+            response = requests.post(API.BASE_URL + version + '/' + url, data=data, headers=headers)
         except ConnectionError:
             if retry < self.MAX_RETRIES:
                 return self.post(url, data, headers, retry + 1)
@@ -194,10 +195,11 @@ class API:
         self._log_response(response)
         return response.text
 
-    def put(self, url, data, headers=None, retry=0):
+    def put(self, url, data, headers=None, retry=0, version=None):
         headers = self._get_headers(headers)
+        version = version or self.VERSION
         try:
-            response = requests.put(API.BASE_URL + API.VERSION + '/' + url, data=data, headers=headers)
+            response = requests.put(API.BASE_URL + version + '/' + url, data=data, headers=headers)
         except ConnectionError:
             if retry < self.MAX_RETRIES:
                 return self.put(url, data, headers, retry + 1)
@@ -206,10 +208,11 @@ class API:
         self._log_response(response)
         return response.text
 
-    def delete(self, url, headers=None, retry=0):
+    def delete(self, url, headers=None, retry=0, version=None):
         headers = self._get_headers(headers)
+        version = version or self.VERSION
         try:
-            response = requests.delete(API.BASE_URL + API.VERSION + '/' + url, headers=headers)
+            response = requests.delete(API.BASE_URL + version + '/' + url, headers=headers)
         except ConnectionError:
             if retry < self.MAX_RETRIES:
                 return self.delete(url, headers, retry + 1)
@@ -218,12 +221,14 @@ class API:
         self._log_response(response)
         return response.text
 
-    def get_json(self, url, params, cache_timeout=DEFAULT_CACHE_TIMEOUT, retry=0):
+    def get_json(self, url, params, cache_timeout=None, retry=0, version=None):
         cache_data = {
             'url': url,
             'params': params,
-            'user': ''
+            'user': '',
+            'version': version or self.VERSION
         }
+        cache_timeout = cache_timeout or self.DEFAULT_CACHE_TIMEOUT
 
         if self.is_authenticated():
             if self.token.is_expired():
@@ -238,7 +243,7 @@ class API:
             response_text = self._cache.get(cache_key, cache_timeout)
 
         if response_text is None:
-            response_text = self.get(url, params=params, headers=self._get_headers())
+            response_text = self.get(url, params=params, headers=self._get_headers(), version=version)
             if cache_timeout is not None:
                 self._cache.set(cache_key, response_text, cache_timeout)
 
@@ -250,17 +255,20 @@ class API:
             else:
                 raise exceptions.ResponseError
 
-    def get_detail(self, model, obj, obj_id, cache_timeout=DEFAULT_CACHE_TIMEOUT, params=None):
+    def get_detail(self, model, obj, obj_id, cache_timeout=None, params=None, version=None):
         if params is None:
             params = dict()
         if not self.is_authenticated():
             params['apikey'] = self._key
-        data = self.get_json(obj + '/' + obj_id, params, cache_timeout)
+        url = obj
+        if obj_id is not None:
+            url += '/' + obj_id
+        data = self.get_json(url, params, cache_timeout or self.DEFAULT_CACHE_TIMEOUT, version=version)
         if type(data) == list and len(data) == 1:
             data = data[0]
         return model(data)
 
-    def get_list(self, model, obj, limit=None, offset=None, cache_timeout=DEFAULT_CACHE_TIMEOUT, params=None):
+    def get_list(self, model, obj, limit=None, offset=None, cache_timeout=None, params=None, version=None):
         if params is None:
             params = dict()
         if not self.is_authenticated():
@@ -270,6 +278,6 @@ class API:
             if offset is not None:
                 params['offset'] = offset
         items = []
-        for item in self.get_json(obj, params, cache_timeout):
+        for item in self.get_json(obj, params, cache_timeout or self.DEFAULT_CACHE_TIMEOUT, version=version):
             items.append(model(item))
         return items
