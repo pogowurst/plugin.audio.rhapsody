@@ -10,9 +10,25 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <summary lang="en">Rhapsody music add-on</summary>
-        <description lang="en">Listen to over 35 million songs in the Rhapsody music catalog. Manage your music library and playlists in a comfortable way. Use top artists, albums and tracks or radio stations to discover something new. A Rhapsody subscription is required.</description>
+        <description lang="en">
+            <![CDATA[Listen to over 35 million songs in the Rhapsody music catalog. Manage your music library and playlists in a comfortable way. Use top artists, albums and tracks or radio stations to discover something new. A Rhapsody subscription is required.]]>
+        </description>
         <summary lang="de">Rhapsody Musik Add-On</summary>
-        <description lang="de">Höre mehr als 35 Millionen Songs aus dem Rhapsody Musikkatalog. Verwalte bequem deine Musikbibliothek und Wiedergabelisten. Verwende Top-Künstler, Alben und Titel oder Radiosender um etwas Neues zu entdecken. Eine kostenpflichtige Rhapsody-Mitgliedschaft wird benötigt.</description>
+        <description lang="de">
+            <![CDATA[Höre mehr als 35 Millionen Songs aus dem Rhapsody Musikkatalog. Verwalte bequem deine Musikbibliothek und Wiedergabelisten. Verwende Top-Künstler, Alben und Titel oder Radiosender um etwas Neues zu entdecken. Eine kostenpflichtige Rhapsody-Mitgliedschaft wird benötigt.]]>
+        </description>
+        <news><![CDATA[
+v2.4.2  (2019-01-02)
+- Added Python 3 compatibility
+
+v2.4.1
+- Fixed quality setting AAC+ 64kBit/s
+
+v2.4.0
+- Added support for API endpoint 2.2 (currently only used for streaming and controlling streaming quality)
+- Added option to select playback quality in plugin configuration
+- Fixed station playback
+        ]]></news>
         <disclaimer/>
         <language>en de</language>
         <platform>all</platform>
