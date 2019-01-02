@@ -1,7 +1,8 @@
+from __future__ import unicode_literals
+
 import datetime
 
-from datetime import timedelta
-from xbmcswift2 import xbmc
+from kodiswift import xbmc
 
 
 class Notify(object):

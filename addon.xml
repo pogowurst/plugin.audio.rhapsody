@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.audio.rhapsody" name="Rhapsody" version="2.4.1" provider-name="pogowurst">
+<addon id="plugin.audio.rhapsody" name="Rhapsody" version="2.4.2" provider-name="pogowurst">
     <requires>
-        <import addon="xbmc.python" version="2.1.0"/>
-        <import addon="script.module.xbmcswift2" version="2.4.0"/>
+        <import addon="xbmc.python" version="2.24.0"/>
+        <import addon="script.module.kodiswift" version="0.0.8"/>
         <import addon="script.module.requests" version="2.4.3"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon.py">

@@ -1,9 +1,12 @@
+from __future__ import absolute_import, division, unicode_literals
+
+import io
 import os
 import sys
 import traceback
-from cStringIO import StringIO
 
-from xbmcswift2 import Plugin
+from kodiswift import Plugin
+
 
 plugin = Plugin()
 
@@ -214,13 +217,13 @@ def artists_library_albums(artist_id):
         album_type = int(plugin.request.args['album_type'][0])
     except (KeyError, ValueError):
         items.append({
-            'label': u'[B]{0:s}[/B]'.format(_(30255)),
+            'label': '[B]{0:s}[/B]'.format(_(30255)),
             'path': plugin.url_for('artists_detail', artist_id=artist_id)
         })
 
         album_type = rhapsody.albums.TYPE_MAIN_RELEASE
         items.append({
-            'label': u'[B]{0:s}[/B]'.format(_(30245)),
+            'label': '[B]{0:s}[/B]'.format(_(30245)),
             'path': plugin.url_for(
                 'artists_library_albums',
                 artist_id=artist_id,
@@ -228,7 +231,7 @@ def artists_library_albums(artist_id):
             )
         })
         items.append({
-            'label': u'[B]{0:s}[/B]'.format(_(30246)),
+            'label': '[B]{0:s}[/B]'.format(_(30246)),
             'path': plugin.url_for(
                 'artists_library_albums',
                 artist_id=artist_id,
@@ -268,19 +271,19 @@ def artists_detail(artist_id):
         album_type = int(plugin.request.args['album_type'][0])
     except (KeyError, ValueError):
         station = rhapsody.stations.detail(rhapsody.artists.get_station_id(artist_id))
-        items.append(helpers.get_station_item(station, label=u'[B]{0:s}[/B]'.format(_(30244))))
+        items.append(helpers.get_station_item(station, label='[B]{0:s}[/B]'.format(_(30244))))
         items.append({
-            'label': u'[B]{0:s}[/B]'.format(_(30256)),
+            'label': '[B]{0:s}[/B]'.format(_(30256)),
             'path': plugin.url_for('artists_similar', artist_id=artist_id)
         })
 
         album_type = rhapsody.albums.TYPE_MAIN_RELEASE
         items.append({
-            'label': u'[B]{0:s}[/B]'.format(_(30245)),
+            'label': '[B]{0:s}[/B]'.format(_(30245)),
             'path': plugin.url_for('artists_detail', artist_id=artist_id, album_type=rhapsody.albums.TYPE_SINGLE_EP)
         })
         items.append({
-            'label': u'[B]{0:s}[/B]'.format(_(30246)),
+            'label': '[B]{0:s}[/B]'.format(_(30246)),
             'path': plugin.url_for('artists_detail', artist_id=artist_id, album_type=rhapsody.albums.TYPE_COMPILATION)
         })
 
@@ -364,7 +367,7 @@ def playlists_library_detail(playlist_id):
 
 @plugin.route('/playlists/library/select/<track_id>')
 def playlists_library_select(track_id):
-    from xbmcswift2 import xbmcgui
+    from kodiswift import xbmcgui
 
     playlists = rhapsody.library.playlists()
     idx = xbmcgui.Dialog().select(_(30214), [x.name for x in playlists])
@@ -633,7 +636,7 @@ def play(track_id, station_id=None):
                 plugin.add_to_playlist([next_item], playlist='music')
 
     # query the next playlist item so it'll be added to the cache for seamless playback
-    prefetch_enabled = plugin.get_setting('api_prefetch', converter=bool)
+    prefetch_enabled = plugin.get_setting('api_prefetch'.encode('utf-8'), converter=bool)
     if prefetch_enabled and rhapsody.ENABLE_CACHE:
         playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
         next_pos = playlist.getposition() + 1
@@ -646,12 +649,12 @@ def play(track_id, station_id=None):
             re.escape(
                 plugin.url_for('play', track_id='-track_id-')
             ).replace(
-                re.escape('-track_id-'), '(?P<track_id>[^\/]+)'
+                re.escape('-track_id-'), '(?P<track_id>[^/]+)'
             ),
             re.escape(
                 plugin.url_for('stations_play', station_id='-station_id-', current_track_id='-track_id-')
             ).replace(
-                re.escape('-station_id-'), '(?P<station_id>[^\/]+)'
+                re.escape('-station_id-'), '(?P<station_id>[^/]+)'
             ).replace(
                 re.escape('-track_id-'), '(?P<track_id>.+)'
             )
@@ -659,31 +662,31 @@ def play(track_id, station_id=None):
         for url_pattern in url_patterns:
             match = re.match(url_pattern, next_url)
             if match is not None:
-                next_track_id = match.group('track_id')
+                next_track_id = match.group(1)
 
-        if next_track_id is not None:
+        if next_track_id is not None and next_track_id != track_id:
             plugin.log.info('Preload: Caching next playlist position {0:d} ({1:s})'.format(next_pos, next_track_id))
-            rhapsody.tracks.detail(next_track_id)
-            helpers.get_stream(next_track_id)
+            try:
+                rhapsody.tracks.detail(next_track_id)
+                helpers.get_stream(next_track_id)
+            except exceptions.ResourceNotFoundError:
+                pass
 
     # wait for the current item to finish before exiting
-    while not xbmc.abortRequested and not player.has_stopped:
-        xbmc.sleep(10)
+    monitor = xbmc.Monitor()
+    while not monitor.abortRequested() and not player.has_stopped:
+        if monitor.waitForAbort(1):
+            break
 
     plugin.log.info('Player: Exited')
-    return plugin.finish()
 
 
 if __name__ == '__main__':
-    sys.stdout = StringIO()
+    sys.stdout = io.StringIO()
     sys.path.append(os.path.join(plugin.addon.getAddonInfo('path'), 'resources', 'lib'))
 
     _ = plugin.get_string
-    cache = plugin.get_storage('data', TTL=0)
-
-    import requests
-
-    requests.packages.urllib3.disable_warnings()
+    cache = plugin.get_storage('data'.encode('utf-8'), ttl=0)
 
     from helpers import Helpers
 
@@ -693,8 +696,8 @@ if __name__ == '__main__':
         from rhapsody import exceptions
 
         rhapsody = helpers.get_api()
-        rhapsody.ENABLE_DEBUG = plugin.get_setting('api_debug', converter=bool)
-        rhapsody.ENABLE_CACHE = not plugin.get_setting('api_cache_disable', converter=bool)
+        rhapsody.ENABLE_DEBUG = plugin.get_setting('api_debug'.encode('utf-8'), converter=bool)
+        rhapsody.ENABLE_CACHE = not plugin.get_setting('api_cache_disable'.encode('utf-8'), converter=bool)
         if not rhapsody.ENABLE_DEBUG and not rhapsody.ENABLE_CACHE:
             rhapsody.ENABLE_CACHE = True
             plugin.set_setting('api_cache_disable', '0')
@@ -729,4 +732,5 @@ if __name__ == '__main__':
 
         stdout = sys.stdout.getvalue()
         if len(stdout):
-            plugin.log.info(stdout)
+            for line in stdout.split('\n'):
+                plugin.log.info(line.replace('\r', ''))

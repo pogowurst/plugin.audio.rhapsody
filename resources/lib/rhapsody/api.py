@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 from datetime import datetime, timedelta
 
 import requests
@@ -32,13 +33,14 @@ class API:
     instance = None
     token = Token
 
-    def __init__(self, key, secret, cache_instance=cache.Dummy()):
+    def __init__(self, key, secret, cache_instance=cache.Dummy(), log_callback=None):
         API.instance = self
 
         self._cache = cache_instance
         self._auth = (key, secret)
         self._key = key
         self._secret = secret
+        self._log_callback = log_callback
 
         self.artists = Artists(self)
         self.albums = Albums(self)
@@ -117,7 +119,8 @@ class API:
         try:
             self.session = Session(json.loads(response.text))
             self._cache.set('session', self.session, API.TOKEN_CACHE_LIFETIME)
-        except:
+        except Exception as e:
+            self._log_message(str(e))
             raise exceptions.ResponseError
 
     def validate_session(self):
@@ -151,7 +154,7 @@ class API:
 
     def _log_response(self, response):
         if self.ENABLE_DEBUG:
-            print {
+            self._log_message(str({
                 'request': {
                     'url': response.request.url,
                     'headers': response.request.headers,
@@ -161,7 +164,13 @@ class API:
                     'status': response.status_code,
                     'text': response.text
                 }
-            }
+            }))
+
+    def _log_message(self, msg):
+        if self._log_callback is not None:
+            self._log_callback(msg)
+        else:
+            logging.log(logging.INFO, msg)
 
     def get(self, url, params, headers=None, retry=0, version=None):
         headers = self._get_headers(headers)

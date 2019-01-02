@@ -1,4 +1,6 @@
-from xbmcswift2 import actions
+from __future__ import absolute_import, division, unicode_literals
+
+from kodiswift import actions
 
 from rhapsody.api import API
 from rhapsody.cache import Base as BaseCache
@@ -14,7 +16,7 @@ class Helpers:
         def get_storage(self, timeout):
             timeout = int(timeout / 60)
             if timeout not in self.storages:
-                self.storages[timeout] = self._plugin.get_storage('rhapsody.{0:d}'.format(timeout), TTL=timeout)
+                self.storages[timeout] = self._plugin.get_storage('rhapsody.{0:d}'.format(timeout), ttl=timeout)
             return self.storages[timeout]
 
         def get(self, key, timeout):
@@ -210,7 +212,7 @@ class Helpers:
     def _get_api(self):
         api_key = self._plugin.get_setting('api_key', converter=unicode)
         api_secret = self._plugin.get_setting('api_secret', converter=unicode)
-        rhapsody = API(api_key, api_secret, cache_instance=self._cache)
+        rhapsody = API(api_key, api_secret, cache_instance=self._cache, log_callback=self._plugin.log.info)
 
         username = self._plugin.get_setting('username', converter=unicode)
         password = self._plugin.get_setting('password', converter=unicode)

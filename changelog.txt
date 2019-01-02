@@ -1,3 +1,6 @@
+v2.4.2
+- Added Python 3 compatibility
+
 v2.4.1
 - Fixed quality setting AAC+ 64kBit/s
 
