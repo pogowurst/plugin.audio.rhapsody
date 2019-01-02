@@ -21,10 +21,10 @@
 v2.4.2  (2019-01-02)
 - Added Python 3 compatibility
 
-v2.4.1
+v2.4.1  (2019-01-01)
 - Fixed quality setting AAC+ 64kBit/s
 
-v2.4.0
+v2.4.0  (2019-01-01)
 - Added support for API endpoint 2.2 (currently only used for streaming and controlling streaming quality)
 - Added option to select playback quality in plugin configuration
 - Fixed station playback
