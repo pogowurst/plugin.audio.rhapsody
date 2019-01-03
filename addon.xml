@@ -37,5 +37,9 @@ v2.4.0  (2019-01-01)
         <website/>
         <email/>
         <source>https://github.com/pogowurst/plugin.audio.rhapsody</source>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
     </extension>
 </addon>
